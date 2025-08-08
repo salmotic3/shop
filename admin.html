@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Admin Panel</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        .admin-content {
+            padding: 30px;
+        }
+        .product-form {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #e9ecef;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        input[type="text"], input[type="number"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        .image-upload {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+        .image-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        .image-upload-label {
+            display: block;
+            padding: 12px;
+            background: #e9ecef;
+            border-radius: 4px;
+            text-align: center;
+            border: 2px dashed #adb5bd;
+        }
+        .image-preview {
+            margin-top: 15px;
+            text-align: center;
+        }
+        .image-preview img {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+        .product-card {
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        .product-image {
+            height: 200px;
+            overflow: hidden;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .product-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .product-details {
+            padding: 20px;
+        }
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .product-description {
+            margin: 15px 0;
+            color: #555;
+            line-height: 1.5;
+            max-height: 100px;
+            overflow: hidden;
+            position: relative;
+        }
+        .product-description.collapsed {
+            max-height: 60px;
+        }
+        .product-description.collapsed::after {
+            content: '...';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: white;
+            padding-left: 10px;
+        }
+        .toggle-description {
+            color: #667eea;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .btn-small {
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+        .btn-danger {
+            background: #e74c3c;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6c757d;
+        }
+        .empty-state img {
+            width: 100px;
+            opacity: 0.5;
+            margin-bottom: 20px;
+        }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 4px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(100px);
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+        .notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Product Admin Panel</h1>
+            <p>Manage your dropshipping products from China to Bangladesh</p>
+        </header>
+        
+        <div class="admin-content">
+            <div class="product-form">
+                <h2>Add New Product</h2>
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" placeholder="Enter product name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-price">Price (BDT)</label>
+                        <input type="number" id="product-price" placeholder="Enter price in BDT" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product-description">Product Description</label>
+                        <textarea id="product-description" placeholder="Enter product description" rows="4"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Product Image</label>
+                        <div class="image-upload">
+                            <input type="file" id="product-image" accept="image/*">
+                            <label for="product-image" class="image-upload-label">
+                                Click to upload image
+                            </label>
+                        </div>
+                        <div class="image-preview" id="image-preview"></div>
+                    </div>
+                    
+                    <button type="submit" class="btn">Add Product</button>
+                </form>
+            </div>
+            
+            <h2>Your Products</h2>
+            <div id="product-container">
+                <div class="empty-state">
+                    <p>No products added yet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load products from local storage
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            
+            // DOM elements
+            const productForm = document.getElementById('product-form');
+            const productContainer = document.getElementById('product-container');
+            const imageInput = document.getElementById('product-image');
+            const imagePreview = document.getElementById('image-preview');
+            const notification = document.getElementById('notification');
+            
+            // Image preview
+            imageInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        imagePreview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // Form submission
+            productForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('product-name').value;
+                const price = document.getElementById('product-price').value;
+                const description = document.getElementById('product-description').value;
+                const imageFile = imageInput.files[0];
+                
+                if (imageFile) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const newProduct = {
+                            id: Date.now(),
+                            name: name,
+                            price: price,
+                            description: description,
+                            image: e.target.result
+                        };
+                        
+                        products.push(newProduct);
+                        saveProducts();
+                        renderProducts();
+                        resetForm();
+                        showNotification('Product added successfully!');
+                    }
+                    
+                    reader.readAsDataURL(imageFile);
+                }
+            });
+            
+            // Save products to local storage
+            function saveProducts() {
+                localStorage.setItem('products', JSON.stringify(products));
+            }
+            
+            // Render products
+            function renderProducts() {
+                if (products.length === 0) {
+                    productContainer.innerHTML = `
+                        <div class="empty-state">
+                            <p>No products added yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                productContainer.innerHTML = '<div class="product-grid"></div>';
+                const productGrid = productContainer.querySelector('.product-grid');
+                
+                products.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+                    productCard.innerHTML = `
+                        <div class="product-image">
+                            <img src="${product.image}" alt="${product.name}">
+                        </div>
+                        <div class="product-details">
+                            <div class="product-name">${product.name}</div>
+                            <div class="product-price">৳${product.price}</div>
+                            <div class="product-description collapsed" id="desc-${product.id}">
+                                ${product.description || 'No description available'}
+                            </div>
+                            ${product.description ? `<span class="toggle-description" data-id="${product.id}">Show more</span>` : ''}
+                            <div class="product-actions">
+                                <button class="btn btn-small btn-danger" data-id="${product.id}">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    productGrid.appendChild(productCard);
+                });
+                
+                // Add toggle description functionality
+                document.querySelectorAll('.toggle-description').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-id');
+                        const descElement = document.getElementById(`desc-${productId}`);
+                        
+                        if (descElement.classList.contains('collapsed')) {
+                            descElement.classList.remove('collapsed');
+                            this.textContent = 'Show less';
+                        } else {
+                            descElement.classList.add('collapsed');
+                            this.textContent = 'Show more';
+                        }
+                    });
+                });
+                
+                // Add delete functionality
+                document.querySelectorAll('.btn-danger').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = parseInt(this.getAttribute('data-id'));
+                        deleteProduct(productId);
+                    });
+                });
+            }
+            
+            // Delete product
+            function deleteProduct(id) {
+                products = products.filter(product => product.id !== id);
+                saveProducts();
+                renderProducts();
+                showNotification('Product deleted successfully!');
+            }
+            
+            // Reset form
+            function resetForm() {
+                productForm.reset();
+                imagePreview.innerHTML = '';
+            }
+            
+            // Show notification
+            function showNotification(message) {
+                notification.textContent = message;
+                notification.classList.add('show');
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                }, 3000);
+            }
+            
+            // Initial render
+            renderProducts();
+        });
+    </script>
+</body>
+</html>
